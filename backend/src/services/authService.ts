@@ -1,5 +1,6 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
 import { userRepository } from "../repositories/userRepository.js";
 
 const JWT_SECRET = "fittrack-secret-key";
@@ -10,16 +11,26 @@ export const authService = {
     email: string,
     password: string,
   ) {
-    const passwordHash = await bcrypt.hash(
-      password,
-      10,
-    );
+    const existingUser =
+      await userRepository.findByEmail(email);
 
-    return userRepository.createWithPassword(
-      name,
-      email,
-      passwordHash,
-    );
+    if (existingUser) {
+      throw new Error(
+        "Unique constraint failed",
+      );
+    }
+
+    const passwordHash =
+      await bcrypt.hash(password, 10);
+
+    const user =
+      await userRepository.createWithPassword(
+        name,
+        email,
+        passwordHash,
+      );
+
+    return user;
   },
 
   async login(
@@ -35,13 +46,13 @@ export const authService = {
       );
     }
 
-    const isPasswordValid =
+    const passwordMatches =
       await bcrypt.compare(
         password,
         user.passwordHash,
       );
 
-    if (!isPasswordValid) {
+    if (!passwordMatches) {
       throw new Error(
         "Неверный email или пароль",
       );

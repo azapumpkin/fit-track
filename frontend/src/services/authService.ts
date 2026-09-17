@@ -43,3 +43,35 @@ export async function login(
 
     return data;
 }
+
+export async function register(
+    name: string,
+    email: string,
+    password: string,
+): Promise<AuthUser> {
+    const response = await fetch(
+        `${API_URL}/api/auth/register`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name,
+                email,
+                password,
+            }),
+        },
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            "Не удалось зарегистрироваться",
+        );
+    }
+
+    return data;
+}

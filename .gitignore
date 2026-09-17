@@ -28,3 +28,6 @@ coverage/
 .claude/
 .cursor/
 .devin/
+
+# Local SQLite database
+backend/prisma/*.db

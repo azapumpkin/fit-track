@@ -1,0 +1,20 @@
+{
+  "name": "fit-track",
+  "version": "1.0.0",
+  "description": "FitTrack desktop application",
+  "main": "electron/main.js",
+  "scripts": {
+    "electron": "electron electron/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azapumpkin/fit-track.git"
+  },
+  "keywords": [],
+  "author": "Aza",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^44.4.1"
+  },
+  "type": "commonjs"
+}
