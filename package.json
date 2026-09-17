@@ -4,7 +4,10 @@
   "description": "FitTrack desktop application",
   "main": "electron/main.js",
   "scripts": {
-    "electron": "electron electron/main.js"
+    "electron": "electron electron/main.js",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:backend": "npm --prefix backend run build",
+    "build:app": "npm run build:frontend && npm run build:backend && electron-builder"
   },
   "repository": {
     "type": "git",
@@ -14,7 +17,41 @@
   "author": "Aza",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^44.4.1"
+    "electron": "^44.4.1",
+    "electron-builder": "^26.15.3"
   },
-  "type": "commonjs"
+  "type": "commonjs",
+  "build": {
+    "appId": "com.azapumpkin.fittrack",
+    "productName": "FitTrack",
+    "files": [
+      "electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "frontend/dist",
+        "to": "frontend"
+      },
+      {
+        "from": "backend/dist",
+        "to": "backend/dist"
+      },
+      {
+        "from": "backend/node_modules",
+        "to": "backend/node_modules"
+      },
+      {
+        "from": "backend/prisma/schema.prisma",
+        "to": "backend/prisma/schema.prisma"
+      },
+      {
+        "from": "backend/prisma/migrations",
+        "to": "backend/prisma/migrations"
+      }
+    ],
+    "mac": {
+      "target": "dir",
+      "category": "public.app-category.healthcare-fitness"
+    }
+  }
 }

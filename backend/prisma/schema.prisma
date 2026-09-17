@@ -4,30 +4,26 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./fittrack.db"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   name          String
-  email         String   @unique
+  email         String      @unique
   passwordHash  String
-
   gender        String?
   age           Int?
   height        Int?
   weight        Float?
   goal          String?
   activityLevel String?
-
   dailyCalories Int?
   dailyProtein  Float?
   dailyFat      Float?
   dailyCarbs    Float?
-
-  createdAt     DateTime @default(now())
-
-  foodEntries FoodEntry[] @relation("UserFoodEntries")
+  createdAt     DateTime    @default(now())
+  foodEntries   FoodEntry[] @relation("UserFoodEntries")
 }
 
 model Food {
@@ -46,8 +42,6 @@ model FoodEntry {
   foodId Int
   amount Float
   date   DateTime @default(now())
-
-  user User @relation("UserFoodEntries", fields: [userId], references: [id], onDelete: Cascade)
-
-  food Food @relation(fields: [foodId], references: [id])
+  food   Food     @relation(fields: [foodId], references: [id])
+  user   User     @relation("UserFoodEntries", fields: [userId], references: [id], onDelete: Cascade)
 }

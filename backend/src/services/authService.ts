@@ -15,9 +15,7 @@ export const authService = {
       await userRepository.findByEmail(email);
 
     if (existingUser) {
-      throw new Error(
-        "Unique constraint failed",
-      );
+      throw new Error("Unique constraint failed");
     }
 
     const passwordHash =
@@ -59,13 +57,9 @@ export const authService = {
     }
 
     const token = jwt.sign(
-      {
-        userId: user.id,
-      },
+      { userId: user.id },
       JWT_SECRET,
-      {
-        expiresIn: "7d",
-      },
+      { expiresIn: "7d" },
     );
 
     return {

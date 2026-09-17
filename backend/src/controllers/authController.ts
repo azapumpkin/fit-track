@@ -1,9 +1,14 @@
 import { Request, Response } from "express";
+
 import { authService } from "../services/authService.js";
 
 export const authController = {
-    async register(req: Request, res: Response) {
-        const { name, email, password } = req.body;
+    async register(
+        req: Request,
+        res: Response,
+    ) {
+        const { name, email, password } =
+            req.body;
 
         if (!name || !email || !password) {
             res.status(400).json({
@@ -37,6 +42,11 @@ export const authController = {
                 email: user.email,
             });
         } catch (error) {
+            console.error(
+                "REGISTER ERROR:",
+                error,
+            );
+
             if (
                 error instanceof Error &&
                 error.message.includes(
@@ -55,8 +65,12 @@ export const authController = {
         }
     },
 
-    async login(req: Request, res: Response) {
-        const { email, password } = req.body;
+    async login(
+        req: Request,
+        res: Response,
+    ) {
+        const { email, password } =
+            req.body;
 
         if (!email || !password) {
             res.status(400).json({
