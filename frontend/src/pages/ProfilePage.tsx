@@ -7,7 +7,7 @@ import {
 } from "../services/userService";
 
 type ProfilePageProps = {
-  onUserUpdated: (user: User) => void;
+    onUserUpdated: (user: User) => void;
 };
 
 function ProfilePage({ onUserUpdated }: ProfilePageProps) {
@@ -245,7 +245,6 @@ function ProfilePage({ onUserUpdated }: ProfilePageProps) {
                         max="120"
                         value={age}
                         onChange={(event) => {
-                            console.log("Возраст в поле:", event.target.value);
                             setAge(event.target.value);
                         }}
                     />
