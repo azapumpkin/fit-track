@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -11,18 +11,18 @@ model User {
   id            Int         @id @default(autoincrement())
   name          String
   email         String      @unique
-  passwordHash  String
-  gender        String?
-  age           Int?
   height        Int?
   weight        Float?
   goal          String?
-  activityLevel String?
   dailyCalories Int?
-  dailyProtein  Float?
-  dailyFat      Float?
-  dailyCarbs    Float?
   createdAt     DateTime    @default(now())
+  passwordHash  String
+  dailyCarbs    Float?
+  dailyFat      Float?
+  dailyProtein  Float?
+  activityLevel String?
+  age           Int?
+  gender        String?
   foodEntries   FoodEntry[] @relation("UserFoodEntries")
 }
 

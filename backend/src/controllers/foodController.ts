@@ -8,6 +8,23 @@ export const foodController = {
         res.json(foods);
     },
 
+    async searchFoods(req: Request, res: Response) {
+        const query = String(req.query.query ?? "").trim();
+
+        if (!query) {
+            res.status(400).json({
+                message: "Поисковый запрос не может быть пустым",
+            });
+
+            return;
+        }
+
+        const foods =
+            await foodService.searchExternalFoods(query);
+
+        res.json(foods);
+    },
+
     async createFood(req: Request, res: Response) {
         const { name, calories, protein, fat, carbs } = req.body;
 
