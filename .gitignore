@@ -31,3 +31,6 @@ coverage/
 
 # Local SQLite database
 backend/prisma/*.db
+
+# Database backups
+backend/fittrack_backup.sql

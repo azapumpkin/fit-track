@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 import { userRepository } from "../repositories/userRepository.js";
 
-const JWT_SECRET = "fittrack-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "fittrack-secret-key";
 
 export const authService = {
   async register(

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = "fittrack-secret-key";
+const JWT_SECRET = process.env.JWT_SECRET || "fittrack-secret-key";
 
 export type AuthRequest = Request & {
     userId?: number;
