@@ -26,6 +26,8 @@ app.use("/api/foods", foodRoutes);
 app.use("/api/food-entries", foodEntryRoutes);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`FitTrack API is running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(
+        `FitTrack API is running on port ${PORT}`,
+    );
 });
