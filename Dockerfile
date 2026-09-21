@@ -11,6 +11,7 @@ RUN npm --prefix frontend ci
 COPY backend ./backend
 COPY frontend ./frontend
 
+RUN ./backend/node_modules/.bin/prisma generate --schema ./backend/prisma/schema.prisma
 RUN npm --prefix backend run build
 RUN npm --prefix frontend run build
 
