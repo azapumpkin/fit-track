@@ -34,6 +34,7 @@ model Food {
   protein     Float
   fat         Float
   carbs       Float
+  isCustom    Boolean     @default(true)
   foodEntries FoodEntry[]
 }
 

@@ -2,7 +2,9 @@ import { prisma } from "../prisma.js";
 
 export const foodRepository = {
     findAll() {
-        return prisma.food.findMany();
+        return prisma.food.findMany({
+            where: { isCustom: true },
+        });
     },
 
     create(
@@ -11,6 +13,7 @@ export const foodRepository = {
         protein: number,
         fat: number,
         carbs: number,
+        isCustom = true,
     ) {
         return prisma.food.create({
             data: {
@@ -19,6 +22,7 @@ export const foodRepository = {
                 protein,
                 fat,
                 carbs,
+                isCustom,
             },
         });
     },

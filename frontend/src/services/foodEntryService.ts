@@ -1,7 +1,7 @@
 import { getToken } from "./authStorage";
 
 const API_URL =
-    import.meta.env.VITE_API_URL;
+    import.meta.env.VITE_API_URL ?? "";
 
 function getAuthHeaders() {
     const token = getToken();
@@ -148,6 +148,7 @@ export async function createFood(
     protein: number,
     fat: number,
     carbs: number,
+    isCustom = true,
 ) {
     const response = await fetch(
         `${API_URL}/api/foods`,
@@ -160,6 +161,7 @@ export async function createFood(
                 protein,
                 fat,
                 carbs,
+                isCustom,
             }),
         },
     );

@@ -142,7 +142,7 @@ function formatProducts(
 
             const calories =
                 product.nutriments?.[
-                "energy-kcal_100g"
+                    "energy-kcal_100g"
                 ];
 
             return (
@@ -156,8 +156,8 @@ function formatProducts(
                     ? product.brands.join(", ")
                     : typeof product.brands ===
                         "string"
-                        ? product.brands
-                        : null;
+                      ? product.brands
+                      : null;
 
             return {
                 externalId:
@@ -170,22 +170,22 @@ function formatProducts(
 
                 calories:
                     product.nutriments?.[
-                    "energy-kcal_100g"
+                        "energy-kcal_100g"
                     ] ?? 0,
 
                 protein:
                     product.nutriments?.[
-                    "proteins_100g"
+                        "proteins_100g"
                     ] ?? 0,
 
                 fat:
                     product.nutriments?.[
-                    "fat_100g"
+                        "fat_100g"
                     ] ?? 0,
 
                 carbs:
                     product.nutriments?.[
-                    "carbohydrates_100g"
+                        "carbohydrates_100g"
                     ] ?? 0,
             };
         });
@@ -293,6 +293,7 @@ export const foodService = {
         protein: number,
         fat: number,
         carbs: number,
+        isCustom = true,
     ) {
         return foodRepository.create(
             name,
@@ -300,6 +301,7 @@ export const foodService = {
             protein,
             fat,
             carbs,
+            isCustom,
         );
     },
 

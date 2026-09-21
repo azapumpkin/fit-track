@@ -1,5 +1,16 @@
 import { foodEntryRepository } from "../repositories/foodEntryRepository.js";
 
+type FoodEntryWithFood = Awaited<
+  ReturnType<typeof foodEntryRepository.findAll>
+>[number];
+
+type DailySummary = {
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+};
+
 export const foodEntryService = {
   async getFoodEntries(
     userId: number,
@@ -11,20 +22,23 @@ export const foodEntryService = {
         date,
       );
 
-    return foodEntries.map((entry) => {
-      const multiplier = entry.amount / 100;
+    return foodEntries.map(
+      (entry: FoodEntryWithFood) => {
+        const multiplier = entry.amount / 100;
 
-      return {
-        ...entry,
-        calories:
-          entry.food.calories * multiplier,
-        protein:
-          entry.food.protein * multiplier,
-        fat: entry.food.fat * multiplier,
-        carbs:
-          entry.food.carbs * multiplier,
-      };
-    });
+        return {
+          ...entry,
+          calories:
+            entry.food.calories * multiplier,
+          protein:
+            entry.food.protein * multiplier,
+          fat:
+            entry.food.fat * multiplier,
+          carbs:
+            entry.food.carbs * multiplier,
+        };
+      },
+    );
   },
 
   async getDailySummary(
@@ -38,7 +52,10 @@ export const foodEntryService = {
       );
 
     return foodEntries.reduce(
-      (summary, entry) => {
+      (
+        summary: DailySummary,
+        entry: FoodEntryWithFood,
+      ) => {
         const multiplier = entry.amount / 100;
 
         summary.calories +=

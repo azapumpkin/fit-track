@@ -1,0 +1,9 @@
+.git
+.gitignore
+**/node_modules
+**/dist
+electron/config.js
+**/.env
+**/.env.*
+dist
+scripts

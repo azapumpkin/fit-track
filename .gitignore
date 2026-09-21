@@ -34,3 +34,6 @@ backend/prisma/*.db
 
 # Database backups
 backend/fittrack_backup.sql
+
+# Local Electron configuration with Supabase credentials
+electron/config.js

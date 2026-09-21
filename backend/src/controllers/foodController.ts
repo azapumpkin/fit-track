@@ -26,7 +26,14 @@ export const foodController = {
     },
 
     async createFood(req: Request, res: Response) {
-        const { name, calories, protein, fat, carbs } = req.body;
+        const {
+            name,
+            calories,
+            protein,
+            fat,
+            carbs,
+            isCustom,
+        } = req.body;
 
         const food = await foodService.createFood(
             name,
@@ -34,6 +41,7 @@ export const foodController = {
             protein,
             fat,
             carbs,
+            isCustom !== false,
         );
 
         res.json(food);

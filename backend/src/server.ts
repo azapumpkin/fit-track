@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import fs from "fs";
+import path from "path";
 import { userController } from "./controllers/userController.js";
 import userRoutes from "./routes/userRoutes.js";
 import foodRoutes from "./routes/foodRoutes.js";
@@ -24,6 +26,36 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/foods", foodRoutes);
 app.use("/api/food-entries", foodEntryRoutes);
+
+const frontendDirectory = path.resolve(
+    process.cwd(),
+    "frontend",
+    "dist",
+);
+
+if (fs.existsSync(frontendDirectory)) {
+    app.use(express.static(frontendDirectory));
+
+    app.use((req, res, next) => {
+        if (
+            req.method !== "GET" ||
+            req.path.startsWith("/api/")
+        ) {
+            next();
+            return;
+        }
+
+        res.sendFile(
+            path.join(frontendDirectory, "index.html"),
+            (error) => {
+                if (error) {
+                    next(error);
+                }
+            },
+        );
+    });
+}
+
 app.use(errorHandler);
 
 app.listen(PORT, "0.0.0.0", () => {

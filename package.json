@@ -4,7 +4,7 @@
   "description": "FitTrack desktop application",
   "main": "electron/main.js",
   "scripts": {
-    "electron": "electron electron/main.js",
+    "electron": "npm run build:frontend && npm run build:backend && electron electron/main.js",
     "build:frontend": "npm --prefix frontend run build",
     "build:backend": "npm --prefix backend run build",
     "build:app": "npm run build:frontend && npm run build:backend && electron-builder"

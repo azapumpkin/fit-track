@@ -343,6 +343,23 @@ function App() {
     }
   }
 
+  async function refreshDiary() {
+    const [
+      updatedEntries,
+      updatedSummary,
+      updatedFoods,
+    ] = await Promise.all([
+      getFoodEntries(selectedDate),
+      getDailySummary(selectedDate),
+      getFoods(),
+    ]);
+
+    setFoodEntries(updatedEntries);
+    setSummary(updatedSummary);
+    setFoods(updatedFoods);
+    setActivePage("diary");
+  }
+
   function changeDate(days: number) {
     const [
       year,
@@ -711,7 +728,10 @@ function App() {
       )}
 
       {activePage === "foods" && (
-        <FoodManager />
+        <FoodManager
+          diaryDate={selectedDate}
+          onAddedToDiary={refreshDiary}
+        />
       )}
 
       {activePage === "profile" && (

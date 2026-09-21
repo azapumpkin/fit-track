@@ -1,99 +1,80 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
-const { spawn, spawnSync } = require("child_process");
+const { spawn } = require("child_process");
+const config = require("./config");
 
 let backendProcess;
 let mainWindow;
 
-function runDatabaseMigrations(databasePath) {
-  const backendDirectory = path.join(
-    process.resourcesPath,
-    "backend",
-  );
+const projectDirectory = path.join(__dirname, "..");
 
-  const prismaCliPath = path.join(
-    backendDirectory,
-    "node_modules",
-    "prisma",
-    "build",
-    "index.js",
-  );
+function getDatabaseUrl() {
+  const databaseUrl = new URL(config.DATABASE_URL);
 
-  console.log("Running database migrations...");
+  // Supabase recommends the transaction-mode pooler for Prisma.
+  databaseUrl.port = "6543";
+  databaseUrl.searchParams.set("pgbouncer", "true");
+  databaseUrl.searchParams.set("connection_limit", "1");
+  databaseUrl.searchParams.set("connect_timeout", "10");
+  databaseUrl.searchParams.set("pool_timeout", "10");
 
-  const result = spawnSync(
-    process.execPath,
-    [
-      prismaCliPath,
-      "migrate",
-      "deploy",
-    ],
-    {
-      cwd: backendDirectory,
-      env: {
-        ...process.env,
-        ELECTRON_RUN_AS_NODE: "1",
-        DATABASE_URL: `file:${databasePath}`,
-      },
-      stdio: "inherit",
-    },
-  );
-
-  if (result.error) {
-    console.error(
-      "Failed to run database migrations:",
-      result.error,
-    );
-
-    throw result.error;
-  }
-
-  if (result.status !== 0) {
-    throw new Error(
-      `Database migrations failed with exit code ${result.status}`,
-    );
-  }
-
-  console.log(
-    "Database migrations completed successfully.",
-  );
+  return databaseUrl.toString();
 }
 
-function startBackend(databasePath) {
+function getAppPaths() {
+  const resourcesDirectory = app.isPackaged
+    ? process.resourcesPath
+    : projectDirectory;
+
+  return {
+    backendDirectory: path.join(
+      resourcesDirectory,
+      "backend",
+    ),
+    frontendPath: app.isPackaged
+      ? path.join(
+          resourcesDirectory,
+          "frontend",
+          "index.html",
+        )
+      : path.join(
+          resourcesDirectory,
+          "frontend",
+          "dist",
+          "index.html",
+        ),
+  };
+}
+
+function startBackend() {
+  const { backendDirectory } = getAppPaths();
+
   const backendPath = path.join(
-    process.resourcesPath,
-    "backend",
+    backendDirectory,
     "dist",
     "server.js",
   );
 
-  const backendDirectory = path.join(
-    process.resourcesPath,
-    "backend",
-  );
-
-  console.log("Starting backend...");
+  console.log("Starting FitTrack backend...");
   console.log("Backend path:", backendPath);
-  console.log("Database path:", databasePath);
 
   backendProcess = spawn(
-    "/usr/local/bin/node",
+    process.execPath,
     [backendPath],
     {
       cwd: backendDirectory,
       env: {
         ...process.env,
-        DATABASE_URL: `file:${databasePath}`,
+        ELECTRON_RUN_AS_NODE: "1",
+        DATABASE_URL: getDatabaseUrl(),
+        PORT: "3000",
       },
       stdio: "inherit",
     },
   );
 
   backendProcess.on("error", (error) => {
-    console.error(
-      "Failed to start backend:",
-      error,
-    );
+    console.error("Failed to start backend:", error);
   });
 
   backendProcess.on("exit", (code, signal) => {
@@ -103,6 +84,32 @@ function startBackend(databasePath) {
   });
 }
 
+async function waitForBackend() {
+  const attempts = 30;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:3000/api/health",
+      );
+
+      if (response.ok) {
+        return;
+      }
+    } catch {
+      // Backend may need a moment to start.
+    }
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 200);
+    });
+  }
+
+  throw new Error(
+    "FitTrack backend did not start on port 3000",
+  );
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -110,11 +117,7 @@ function createWindow() {
     title: "FitTrack",
   });
 
-  const frontendPath = path.join(
-    process.resourcesPath,
-    "frontend",
-    "index.html",
-  );
+  const { frontendPath } = getAppPaths();
 
   mainWindow.loadFile(frontendPath);
 
@@ -123,15 +126,10 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(() => {
-  const databasePath = path.join(
-    app.getPath("userData"),
-    "fittrack.db",
-  );
-
+app.whenReady().then(async () => {
   try {
-    runDatabaseMigrations(databasePath);
-    startBackend(databasePath);
+    startBackend();
+    await waitForBackend();
     createWindow();
   } catch (error) {
     console.error(
@@ -158,6 +156,6 @@ app.on("before-quit", () => {
 });
 
 app.on("window-all-closed", () => {
-  // На macOS Electron обычно продолжает работать,
+  // На macOS Electron продолжает работать,
   // даже когда все окна закрыты.
 });

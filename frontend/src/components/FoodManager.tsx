@@ -16,21 +16,15 @@ import {
 
 import "./FoodManager.css";
 
-function getTodayDate() {
-    const today = new Date();
+type FoodManagerProps = {
+    diaryDate: string;
+    onAddedToDiary: () => Promise<void>;
+};
 
-    const year = today.getFullYear();
-    const month = String(
-        today.getMonth() + 1,
-    ).padStart(2, "0");
-    const day = String(
-        today.getDate(),
-    ).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-}
-
-function FoodManager() {
+function FoodManager({
+    diaryDate,
+    onAddedToDiary,
+}: FoodManagerProps) {
     const [foods, setFoods] =
         useState<Food[]>([]);
 
@@ -185,6 +179,7 @@ function FoodManager() {
                     selectedFood.protein,
                     selectedFood.fat,
                     selectedFood.carbs,
+                    false,
                 );
 
             // Затем добавляем его в дневник
@@ -192,13 +187,14 @@ function FoodManager() {
             await createFoodEntry(
                 savedFood.id,
                 amountNumber,
-                getTodayDate(),
+                diaryDate,
             );
 
             setSelectedFood(null);
             setAmount("100");
 
             await loadFoods();
+            await onAddedToDiary();
         } catch (error) {
             if (error instanceof Error) {
                 setError(error.message);

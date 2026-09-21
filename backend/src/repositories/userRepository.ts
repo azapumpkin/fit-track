@@ -1,5 +1,33 @@
 import { prisma } from "../prisma.js";
 
+function isDroppedConnection(error: unknown) {
+  return (
+    error instanceof Error &&
+    ("code" in error
+      ? error.code === "P1017" ||
+        error.code === "P1001"
+      : error.message.includes(
+          "Server has closed the connection",
+        ))
+  );
+}
+
+async function retryDroppedConnection<T>(
+  operation: () => Promise<T>,
+) {
+  try {
+    return await operation();
+  } catch (error) {
+    if (!isDroppedConnection(error)) {
+      throw error;
+    }
+
+    await prisma.$disconnect();
+
+    return operation();
+  }
+}
+
 export const userRepository = {
   findAll() {
     return prisma.user.findMany({
@@ -30,13 +58,15 @@ export const userRepository = {
     email: string,
     passwordHash: string,
   ) {
-    return prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-      },
-    });
+    return retryDroppedConnection(() =>
+      prisma.user.create({
+        data: {
+          name,
+          email,
+          passwordHash,
+        },
+      }),
+    );
   },
 
   update(
