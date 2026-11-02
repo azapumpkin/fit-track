@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { foodService } from "../services/foodService.js";
+import type { AuthRequest } from "../middleware/authMiddleware.js";
 
 export const foodController = {
-    async getFoods(_req: Request, res: Response) {
-        const foods = await foodService.getFoods();
+    async getFoods(req: AuthRequest, res: Response) {
+        const foods = await foodService.getFoods(req.userId!);
 
         res.json(foods);
     },
@@ -25,7 +26,7 @@ export const foodController = {
         res.json(foods);
     },
 
-    async createFood(req: Request, res: Response) {
+    async createFood(req: AuthRequest, res: Response) {
         const {
             name,
             calories,
@@ -36,6 +37,7 @@ export const foodController = {
         } = req.body;
 
         const food = await foodService.createFood(
+            req.userId!,
             name,
             calories,
             protein,
@@ -47,7 +49,7 @@ export const foodController = {
         res.json(food);
     },
 
-    async updateFood(req: Request, res: Response) {
+    async updateFood(req: AuthRequest, res: Response) {
         const id = Number(req.params.id);
 
         const {
@@ -60,6 +62,7 @@ export const foodController = {
 
         const food = await foodService.updateFood(
             id,
+            req.userId!,
             name,
             calories,
             protein,
@@ -70,10 +73,10 @@ export const foodController = {
         res.json(food);
     },
 
-    async deleteFood(req: Request, res: Response) {
+    async deleteFood(req: AuthRequest, res: Response) {
         const id = Number(req.params.id);
 
-        await foodService.deleteFood(id);
+        await foodService.deleteFood(id, req.userId!);
 
         res.json({
             message: "Food deleted successfully",

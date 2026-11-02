@@ -1,4 +1,5 @@
 import { foodEntryRepository } from "../repositories/foodEntryRepository.js";
+import { HttpError } from "../errors/httpError.js";
 
 type FoodEntryWithFood = Awaited<
   ReturnType<typeof foodEntryRepository.findAll>
@@ -81,12 +82,21 @@ export const foodEntryService = {
     );
   },
 
-  createFoodEntry(
+  async createFoodEntry(
     userId: number,
     foodId: number,
     amount: number,
     date: Date,
   ) {
+    const food = await foodEntryRepository.findAccessibleFood(
+      foodId,
+      userId,
+    );
+
+    if (!food) {
+      throw new HttpError(404, "Продукт не найден");
+    }
+
     return foodEntryRepository.create(
       userId,
       foodId,

@@ -39,6 +39,7 @@ export type Food = {
     protein: number;
     fat: number;
     carbs: number;
+    isOwner: boolean;
 };
 
 export async function getDailySummary(
@@ -84,6 +85,9 @@ export async function getFoods(): Promise<
 > {
     const response = await fetch(
         `${API_URL}/api/foods`,
+        {
+            headers: getAuthHeaders(),
+        },
     );
 
     if (!response.ok) {

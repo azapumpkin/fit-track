@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "fittrack-secret-key";
+import { jwtConfig } from "../config/jwt.js";
 
 export type AuthRequest = Request & {
     userId?: number;
@@ -28,12 +27,15 @@ export function authMiddleware(
     );
 
     try {
-        const payload = jwt.verify(
-            token,
-            JWT_SECRET,
-        ) as {
+        const payload = jwt.verify(token, jwtConfig.secret, {
+            algorithms: [jwtConfig.algorithm],
+        }) as {
             userId: number;
         };
+
+        if (!Number.isInteger(payload.userId) || payload.userId <= 0) {
+            throw new Error("Invalid JWT subject");
+        }
 
         req.userId = payload.userId;
 

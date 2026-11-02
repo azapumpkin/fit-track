@@ -6,6 +6,7 @@ import type {
     Request,
     Response,
 } from "express";
+import { HttpError } from "../errors/httpError.js";
 
 export function errorHandler(
     err: unknown,
@@ -14,6 +15,11 @@ export function errorHandler(
     _next: NextFunction,
 ) {
     console.error(err);
+
+    if (err instanceof HttpError) {
+        res.status(err.status).json({ message: err.message });
+        return;
+    }
 
     if (
         err instanceof PrismaClientKnownRequestError

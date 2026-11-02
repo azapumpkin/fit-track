@@ -1,3 +1,5 @@
+import { getToken } from "./authStorage";
+
 const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 export type ExternalFood = {
@@ -15,6 +17,11 @@ export async function searchFoods(
 ): Promise<ExternalFood[]> {
     const response = await fetch(
         `${API_URL}/api/foods/search?query=${encodeURIComponent(query)}`,
+        {
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+            },
+        },
     );
 
     const data = await response.json();
