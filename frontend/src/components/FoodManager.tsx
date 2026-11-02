@@ -736,27 +736,31 @@ function FoodManager({
                                 </div>
 
                                 <div className="food-manager-item-actions">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            startEditing(
-                                                food,
-                                            )
-                                        }
-                                    >
-                                        Изменить
-                                    </button>
+                                    {food.isOwner && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    startEditing(
+                                                        food,
+                                                    )
+                                                }
+                                            >
+                                                Изменить
+                                            </button>
 
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleDelete(
-                                                food.id,
-                                            )
-                                        }
-                                    >
-                                        Удалить
-                                    </button>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleDelete(
+                                                        food.id,
+                                                    )
+                                                }
+                                            >
+                                                Удалить
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         ))}

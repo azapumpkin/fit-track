@@ -1,13 +1,17 @@
 import { prisma } from "../prisma.js";
 
 export const foodRepository = {
-    findAll() {
+    findAll(userId: number) {
         return prisma.food.findMany({
-            where: { isCustom: true },
+            where: {
+                OR: [{ ownerId: null }, { ownerId: userId }],
+            },
+            orderBy: { id: "asc" },
         });
     },
 
     create(
+        ownerId: number,
         name: string,
         calories: number,
         protein: number,
@@ -23,21 +27,24 @@ export const foodRepository = {
                 fat,
                 carbs,
                 isCustom,
+                ownerId,
             },
         });
     },
 
     update(
         id: number,
+        ownerId: number,
         name: string,
         calories: number,
         protein: number,
         fat: number,
         carbs: number,
     ) {
-        return prisma.food.update({
+        return prisma.food.updateMany({
             where: {
                 id,
+                ownerId,
             },
             data: {
                 name,
@@ -49,18 +56,20 @@ export const foodRepository = {
         });
     },
 
-    countFoodEntries(foodId: number) {
+    countFoodEntries(foodId: number, ownerId: number) {
         return prisma.foodEntry.count({
             where: {
                 foodId,
+                food: { ownerId },
             },
         });
     },
 
-    delete(id: number) {
-        return prisma.food.delete({
+    delete(id: number, ownerId: number) {
+        return prisma.food.deleteMany({
             where: {
                 id,
+                ownerId,
             },
         });
     },

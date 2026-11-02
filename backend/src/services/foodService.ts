@@ -1,4 +1,5 @@
 import { foodRepository } from "../repositories/foodRepository.js";
+import { HttpError } from "../errors/httpError.js";
 
 const OPEN_FOOD_FACTS_SEARCH_URL =
     "https://search.openfoodfacts.org/search";
@@ -192,8 +193,13 @@ function formatProducts(
 }
 
 export const foodService = {
-    getFoods() {
-        return foodRepository.findAll();
+    async getFoods(userId: number) {
+        const foods = await foodRepository.findAll(userId);
+
+        return foods.map(({ ownerId, ...food }) => ({
+            ...food,
+            isOwner: ownerId === userId,
+        }));
     },
 
     async searchExternalFoods(
@@ -287,7 +293,8 @@ export const foodService = {
         return formattedProducts;
     },
 
-    createFood(
+    async createFood(
+        userId: number,
         name: string,
         calories: number,
         protein: number,
@@ -295,7 +302,8 @@ export const foodService = {
         carbs: number,
         isCustom = true,
     ) {
-        return foodRepository.create(
+        const created = await foodRepository.create(
+            userId,
             name,
             calories,
             protein,
@@ -303,30 +311,50 @@ export const foodService = {
             carbs,
             isCustom,
         );
+
+        const { ownerId, ...food } = created;
+        return { ...food, isOwner: ownerId === userId };
     },
 
-    updateFood(
+    async updateFood(
         id: number,
+        userId: number,
         name: string,
         calories: number,
         protein: number,
         fat: number,
         carbs: number,
     ) {
-        return foodRepository.update(
+        const result = await foodRepository.update(
             id,
+            userId,
             name,
             calories,
             protein,
             fat,
             carbs,
         );
+
+        if (result.count !== 1) {
+            throw new HttpError(404, "Продукт не найден");
+        }
+
+        const foods = await foodRepository.findAll(userId);
+        const updated = foods.find((food) => food.id === id);
+
+        if (!updated) {
+            throw new HttpError(404, "Продукт не найден");
+        }
+
+        const { ownerId, ...food } = updated;
+        return { ...food, isOwner: ownerId === userId };
     },
 
-    async deleteFood(id: number) {
+    async deleteFood(id: number, userId: number) {
         const entriesCount =
             await foodRepository.countFoodEntries(
                 id,
+                userId,
             );
 
         if (entriesCount > 0) {
@@ -335,6 +363,12 @@ export const foodService = {
             );
         }
 
-        return foodRepository.delete(id);
+        const result = await foodRepository.delete(id, userId);
+
+        if (result.count !== 1) {
+            throw new HttpError(404, "Продукт не найден");
+        }
+
+        return result;
     },
 };

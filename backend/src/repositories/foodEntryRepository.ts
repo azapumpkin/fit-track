@@ -18,9 +18,23 @@ export const foodEntryRepository = {
                     }
                     : {}),
             },
-            include: {
-                food: true,
-                user: true,
+            select: {
+                id: true,
+                userId: true,
+                foodId: true,
+                amount: true,
+                date: true,
+                food: {
+                    select: {
+                        id: true,
+                        name: true,
+                        calories: true,
+                        protein: true,
+                        fat: true,
+                        carbs: true,
+                        isCustom: true,
+                    },
+                },
             },
         });
     },
@@ -38,6 +52,16 @@ export const foodEntryRepository = {
                 amount,
                 date,
             },
+        });
+    },
+
+    findAccessibleFood(foodId: number, userId: number) {
+        return prisma.food.findFirst({
+            where: {
+                id: foodId,
+                OR: [{ ownerId: null }, { ownerId: userId }],
+            },
+            select: { id: true },
         });
     },
 

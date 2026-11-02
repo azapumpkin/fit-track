@@ -25,6 +25,7 @@ model User {
   age           Int?
   gender        String?
   foodEntries   FoodEntry[] @relation("UserFoodEntries")
+  foods         Food[]      @relation("UserFoods")
 }
 
 model Food {
@@ -35,7 +36,11 @@ model Food {
   fat         Float
   carbs       Float
   isCustom    Boolean     @default(true)
+  ownerId     Int?
   foodEntries FoodEntry[]
+  owner       User?       @relation("UserFoods", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
 }
 
 model FoodEntry {
